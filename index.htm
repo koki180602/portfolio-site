@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kohki Takahashi!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <a href="#top">Kohki Takahashi</a>
+        <nav>
+            <a href="#about">about</a>
+            <a href="#Works">Works</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="top">
+            <img src="./media/KohkiTakahashi.jpg" width="20%">
+            <h1>
+                Kohki Takahshi<br>
+                Portfolio
+            </h1>
+
+            <!-- ★ 天気アイコン 正しいID -->
+            <p id="weather-icon"></p>
+        </section>
+
+        <section id="about">
+            <h3>about</h3>
+            <p>
+                髙橋 虹樹<br>
+                東京都市大学デザイン・データ科学部
+            </p>
+            <p>
+                趣味：ゲーム、ライブ、パチンコ<br>
+                特技：料理、運転
+            </p>
+        </section>
+
+        <section id="Works" class="works">
+            <h3>Works</h3>
+
+            <div class="works-controls">
+                <select id="category">
+                    <option value="all">すべてのカテゴリ</option>
+                </select>
+
+                <select id="sort">
+                    <option value="new">新しい順</option>
+                    <option value="old">古い順</option>
+                    <option value="title">タイトル順</option>
+                </select>
+            </div>
+
+            <div id="works-grid"></div>
+        </section>
+    </main>
+
+    <footer>
+        <span>© 2026 Kohki Takahashi</span>
+    </footer>
+
+    <!-- ★ 完全版 JS -->
+    <script src="works.js"></script>
+</body>
+</html>

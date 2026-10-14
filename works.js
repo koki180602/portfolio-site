@@ -1,0 +1,183 @@
+// ===============================
+// 作品一覧 CSV 読み込み
+// ===============================
+fetch("works.csv")
+    .then(function(response){
+        return response.text();
+    }) 
+    .then(function(data){
+
+        // ★ BOM除去 + Windows/Mac/Linux の改行に完全対応
+        var rows = data.replace(/^\uFEFF/, "").trim().split(/\r?\n/);
+
+        // ★ 見出しにも trim() を適用（year\r → year に修正）
+        var headers = rows[0].split(",").map(function(header) {
+            return header.trim();
+        });
+
+        // 2行目以降を作品データにする
+        var works = rows.slice(1).map(function(row) {
+            
+            // ★ 安全な split（カンマがあってもズレない）
+            var values = row.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+
+            var work = {};
+
+            // ★ 全項目を trim して不可視文字を除去
+            headers.forEach(function(header,index) {
+                var v = values[index] !== undefined ? values[index].trim() : "";
+                work[header] = v;
+            });
+
+            return work;
+
+        });
+
+        // HTML要素を取得
+        var grid = document.getElementById("works-grid");
+        var categorySelect = document.getElementById("category");
+        var sortSelect = document.getElementById("sort");
+
+        // カテゴリ一覧を作る
+        var categories = [];
+
+        works.forEach(function(work){
+            if (!categories.includes(work.category)) {
+                categories.push(work.category);
+            }
+        });
+
+        // selectにカテゴリを追加
+        categories.forEach(function(category) {
+            var option = document.createElement("option");
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
+
+        // 作品を表示する関数
+        function displayWorks() {
+
+            var selectedCategory = categorySelect.value;
+            var sortType = sortSelect.value;
+
+            var filteredWorks = works.slice();
+            
+            // カテゴリ絞り込み
+            if (selectedCategory !== "all") {
+                filteredWorks = filteredWorks.filter(function(work) {
+                    return work.category === selectedCategory;
+                });
+            }
+
+            // ★ ソート（year が undefined にならないので確実に動く）
+            if (sortType === "new") {
+                filteredWorks.sort(function(a,b){
+                    return Number(b.year) - Number(a.year);
+                });
+            }
+            else if (sortType === "old") {
+                filteredWorks.sort(function(a,b) {
+                    return Number(a.year) - Number(b.year);
+                });
+            }
+            else if (sortType === "title") {
+                filteredWorks.sort(function(a,b) {
+                    return a.title.localeCompare(b.title, "ja");
+                });
+            }
+
+            // 画面を一度空にする
+            grid.innerHTML = "";
+
+            // 作品を1つずつ表示
+            filteredWorks.forEach(function(work) {
+
+                var card = document.createElement("article");
+
+                card.className = "work-card";
+
+                card.innerHTML =
+                    '<a href="' + work.link + '">' +
+                        '<img src="' + work.image + '" alt="' + work.title + '">' +
+                        '<div class="work-info">' +
+                            '<p class="work-category">' + work.category + '</p>' +
+                            '<h4>' + work.title + '</h4>' +
+                            '<p>' + work.description + '</p>' +
+                            '<p class="work-year">' + work.year + '</p>' +
+                        '</div>' +
+                    '</a>';
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 最初に表示
+        displayWorks();
+
+        // カテゴリ変更時
+        categorySelect.addEventListener("change", function() {
+            displayWorks();
+        });
+
+        // ソート変更時
+        sortSelect.addEventListener("change", function() {
+            displayWorks();
+        });
+
+    });
+
+
+// ===============================
+// 天気 API（Open-Meteo）
+// ===============================
+
+var latitude = 35.6895;
+var longitude = 139.6917;
+
+var weatherUrl =
+    "https://api.open-meteo.com/v1/forecast" +
+    "?latitude=" + latitude +
+    "&longitude=" + longitude +
+    "&current=temperature_2m,weather_code" +
+    "&timezone=Asia%2FTokyo";
+
+fetch(weatherUrl)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data){
+        console.log(data); // ★ レスポンス確認用
+        var weatherCode = data.current.weather_code;
+        showWeather(weatherCode);
+    })
+    .catch(function(err){
+        console.error("天気 API エラー:", err);
+    });
+
+
+// ===============================
+// 天気表示ロジック
+// ===============================
+
+function showWeather(code) {
+
+    var icon = document.getElementById("weather-icon");
+
+    if (code === 0) {
+        icon.textContent = "☀";
+        document.body.className = "weather-sunny";
+    }
+    else if (code >= 1 && code <= 3) {
+        icon.textContent = "☁";
+        document.body.className = "weather-cloudy";
+    }
+    else if (code >= 51 && code <= 67) {
+        icon.textContent = "☂";
+        document.body.className = "weather-rainy";
+    }
+    else {
+        icon.textContent = "☁";
+        document.body.className = "weather-cloudy";
+    }
+}
