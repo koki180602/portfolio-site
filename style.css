@@ -159,3 +159,20 @@ body.weather-rainy {
 header.weather-rainy {
     background-color: #cbd9e5;
 }
+/* p5.js作品 */
+#p5 canvas {
+    display: block;
+    max-width: 100%;
+    object-fit: cover;
+}
+/* p5.jsのキャンバス */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+#top {
+    margin-top: 300px;
+    margin-bottom: 100px;
+}
